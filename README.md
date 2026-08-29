@@ -1,91 +1,117 @@
-# agentic-ai — Phase 1: Chat
+# Agentic AI - Phase 1
 
-The first slice of the full agentic platform, scoped exactly to the Phase 1 line
-from the build plan: a working chat app with streaming, history, markdown, and
-error handling. No tools, agent loop, memory, or dashboard yet — that's Phase 2
-onward, on top of this same codebase.
-
-## What's here
-
-- **Streaming chat** — Server-Sent Events from Express to the browser, token by token
-- **Conversation history** — every conversation and message persisted in SQLite
-- **Markdown rendering** — assistant replies render through `react-markdown` + GFM
-- **Error handling** — a missing API key, a dropped stream, or a bad request all
-  surface as a real message in the UI instead of a silent failure or a raw stack trace
+**Now using FreeLLMAPI for free LLM access!** No paid API keys required.
 
 ## Setup
 
+### Prerequisites
+- Node.js 18+ (20+ recommended for FreeLLMAPI support)
+- Optional: FreeLLMAPI instance running (see below)
+
+### Installation
+
 ```bash
 npm install
-cp .env.example .env
-# edit .env and set ANTHROPIC_API_KEY
+```
+
+### Configuration
+
+Create a `.env` file in the root directory:
+
+```env
+# FreeLLMAPI Configuration (free)
+FREELLM_API_URL=http://localhost:3001/v1
+FREELLM_API_KEY=your-freellm-key-here
+LLM_MODEL=gpt-3.5-turbo
+
+# Server
+PORT=3001
+```
+
+#### Option A: Use Public FreeLLMAPI Instance
+Set `FREELLM_API_URL` to a public instance (if available).
+
+#### Option B: Self-Host FreeLLMAPI
+
+```bash
+git clone https://github.com/tashfeenahmed/freellmapi.git
+cd freellmapi
+npm install
+printf "ENCRYPTION_KEY=$(openssl rand -hex 32)\nPORT=3001" > .env
 npm run dev
 ```
 
-Open **http://localhost:5173**. The Vite dev server proxies `/api` to the Express
-server on port 3001, so both run together under `npm run dev`.
+Then set `FREELLM_API_URL=http://localhost:3001/v1` in your agentic-ai `.env`.
 
-For a production-style run:
+## Development
+
+```bash
+npm run dev
+```
+
+Open [http://localhost:5173](http://localhost:5173) in your browser.
+
+## Production Build
 
 ```bash
 npm run build
 npm start
 ```
 
-## Scripts
+## TypeScript & Build
 
-| Command | What it does |
-|---|---|
-| `npm run dev` | Runs the Express API and the Vite dev server together |
-| `npm run build` | Builds the frontend (Vite) and compiles the backend (tsc) |
-| `npm start` | Runs the compiled server, which also serves the built frontend |
-| `npm run typecheck` | Type-checks both `tsconfig.json` (frontend) and `tsconfig.server.json` (backend) |
+```bash
+# Type checking
+npm run typecheck
 
-## Project structure
-
-```
-agentic-ai/
-├── src/
-│   ├── server.ts              Express app, static serving, error handling
-│   ├── api/chat.ts            /api/chat (SSE) + /api/conversations routes
-│   ├── llm/
-│   │   ├── LLMProvider.ts     Provider-agnostic interface
-│   │   └── AnthropicProvider.ts
-│   ├── database/database.ts   SQLite schema + conversation/message CRUD
-│   └── utils/logger.ts
-├── frontend/
-│   ├── App.tsx, main.tsx, types.ts
-│   └── components/
-│       ├── Sidebar.tsx        Conversation list
-│       ├── Chat.tsx           Message list + SSE stream consumption
-│       ├── MessageInput.tsx   Auto-resizing input, Enter to send
-│       └── MarkdownMessage.tsx
-├── data/                      agentic-ai.sqlite lives here (gitignored)
-└── dist/                      build output (gitignored)
+# Build only
+npm run build:client
+npm run build:server
 ```
 
-`agent/`, `tools/`, `agents/`, and `memory/` from the full architecture aren't
-created yet — adding empty folders for functionality that doesn't exist yet
-is exactly the "fake it" pattern the build plan says to avoid. They show up
-starting Phase 2.
+## Features (Phase 1)
 
-## Decisions made to get this running
+✅ Chat UI with streaming responses
+✅ Conversation history & SQLite persistence
+✅ Markdown message rendering
+✅ Error handling & SSE streaming
+✅ Free LLM via FreeLLMAPI (supports 34+ providers)
+✅ No paid API keys required
 
-- **LLM provider: Anthropic (Claude).** Set behind `LLMProvider` so swapping in
-  another provider later means writing one new class, not touching `chat.ts`.
-  Model defaults to `claude-sonnet-5`, overridable via `ANTHROPIC_MODEL` in `.env`.
-- **better-sqlite3** for storage — synchronous, no async ceremony for simple
-  reads/writes. If it ever fails to install on your machine, Node 22+ has a
-  built-in `node:sqlite` you can swap in instead.
-- **Express 4, not 5** — Express 5 changed how wildcard routes work, and the
-  SPA fallback route here relies on the old `'*'` behavior.
-- **SSE over fetch, not `EventSource`** — `EventSource` can't send a POST body,
-  and each request needs to carry the message and conversation id. `Chat.tsx`
-  parses the `text/event-stream` response manually instead.
+## Architecture
 
-## Next
+```
+frontend/
+├── App.tsx              # Main app component
+├── main.tsx             # React entry point
+├── components/
+│   ├── Chat.tsx         # Chat interface
+│   ├── Sidebar.tsx      # Conversation sidebar
+│   ├── MessageInput.tsx # Message input textarea
+│   └── MarkdownMessage.tsx # Markdown renderer
+├── index.css            # Tailwind styles
+└── index.html           # HTML root
 
-Phase 2 (Tool system) is next per the build plan: a generic `Tool` interface,
-a couple of real tools (calculator, current time are the easy first ones), and
-a tool router the model can actually call into — landing in the same repo, on
-top of this chat loop.
+src/
+├── server.ts            # Express server
+├── api/
+│   └── chat.ts          # Chat endpoints & streaming
+├── database/
+│   └── database.ts      # SQLite operations
+├── llm/
+│   ├── FreeLLMProvider.ts # FreeLLMAPI integration
+│   └── LLMProvider.ts     # LLM interface
+└── utils/
+    └── logger.ts        # Logging utility
+```
+
+## Notes
+
+- **Phase 1** = Chat, history, streaming, markdown. No agent/tools yet.
+- **Phase 2** = Tool system & agentic loop (planned).
+- **FreeLLMAPI** aggregates 34+ free LLM providers. No credit card required.
+- Conversation history persists in SQLite (`agentic.db`).
+
+## License
+
+MIT
