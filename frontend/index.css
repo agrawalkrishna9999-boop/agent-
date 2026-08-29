@@ -8,4 +8,110 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #0a0e27;
+  color: #e0e0e0;
+}
+
+/* Mobile optimizations */
+@supports (padding: max(0px)) {
+  body {
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
+    padding-top: max(12px, env(safe-area-inset-top));
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+}
+
+#root {
+  min-height: 100vh;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Prevent zoom on iOS double tap */
+input,
+textarea,
+button,
+select {
+  font-size: 16px;
+}
+
+/* Cursor blinking animation */
+.cursor-blink {
+  animation: blink 1s infinite;
+}
+
+@keyframes blink {
+  0%,
+  49% {
+    opacity: 1;
+  }
+  50%,
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Prose markdown styles for dark theme */
+.prose {
+  color: #e0e0e0;
+}
+
+.prose code {
+  background-color: rgba(0, 212, 255, 0.1);
+  color: #00d4ff;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+}
+
+.prose pre {
+  background-color: #151a2f;
+  border: 1px solid #2d3142;
+}
+
+.prose pre code {
+  background-color: transparent;
+  color: #e0e0e0;
+  padding: 0;
+}
+
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4,
+.prose h5,
+.prose h6 {
+  color: #00d4ff;
+}
+
+.prose a {
+  color: #00d4ff;
+  text-decoration: underline;
+}
+
+.prose a:hover {
+  color: #00a8cc;
+}
+
+.prose blockquote {
+  border-left-color: #00d4ff;
+  color: #b0b8c6;
+}
+
+.prose table {
+  border-collapse: collapse;
+}
+
+.prose table th,
+.prose table td {
+  border: 1px solid #2d3142;
+  padding: 0.5rem;
+}
+
+.prose table th {
+  background-color: #151a2f;
+  color: #00d4ff;
 }
